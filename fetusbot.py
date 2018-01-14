@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+""" Python Telegram Module """
 # -*- coding: utf-8 -*-
 
 import logging
@@ -11,7 +12,6 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 # global vars
 QUOTES = ""
-NUM_LINES = 0
 TELEGRAM_BOT_TOKEN = ''
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -41,8 +41,8 @@ def log_command_choice(choice):
 def log_entry(choice):
     """ Log entry to screen, todo: file """
     time_stamp = time.time()
-    st = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-    print("[" + st + "] " + choice)
+    formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+    print("[" + formatted_time_stamp + "] " + choice)
 
 def button(bot, update):
     """ Handler for 'button' presses """
@@ -57,21 +57,6 @@ def button(bot, update):
     elif query.data == 'Temperature':
         choice = 'Temperature'
         respi = temps(bot, update, False)
-    elif query.data == 'RpiTemp':
-        data = subprocess.Popen('/opt/vc/bin/vcgencmd measure_temp', \
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in data.stdout.readlines():
-            respi = line
-            print(line)
-        data = check_output(['/opt/vc/bin/vcgencmd', 'measure_temp'])
-        respi = data
-        print(respi)
-    elif query.data == 'Ant1':
-        choice = miners[0]
-        respi = getstatus(miners[0])
-    elif query.data == 'AllMiners':
-        respi = getstatus(query.data)
-        print(respi)
     else:
         choice = 'Invalid choice!'
 
@@ -81,7 +66,6 @@ def button(bot, update):
     bot.edit_message_text(text="{}".format(respi),
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
-
 
 def help(bot, update):
     """ Help for bot """
@@ -114,12 +98,11 @@ def init_quotes(file):
     with open(file, 'r') as quote_file:
         quotes = quote_file.readlines()
 
-    global NUM_LINES
-
-    with open(file, 'r') as f:
-        for line in f:
-            NUM_LINES += 1
-    log_entry("Read " + str(NUM_LINES) + " quotes into memory.")
+    with open(file, 'r') as filu:
+        num_lines = 0
+        for line in filu:
+            num_lines += 1
+    log_entry("Read " + str(num_lines) + " quotes into memory.")
 
     return quotes
 
@@ -127,15 +110,15 @@ def main():
     """ Main Function """
     # init configure
     config = init_config()
-    TELEGRAM_BOT_TOKEN = config['telegram']['token']
-    QUOTES_FILE = config['quote']['file']
+    telegram_bot_token = config['telegram']['token']
+    quotes_file = config['quote']['file']
 
     # read quotes
     global QUOTES
-    QUOTES = init_quotes(QUOTES_FILE)
+    QUOTES = init_quotes(quotes_file)
 
     # Create the Updater and pass it your bot's token.
-    updater = Updater(TELEGRAM_BOT_TOKEN)
+    updater = Updater(telegram_bot_token)
 
     updater.dispatcher.add_handler(CommandHandler('menu', menu))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
