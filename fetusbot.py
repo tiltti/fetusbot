@@ -19,6 +19,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 LOGGER = logging.getLogger(__name__)
 
 def menu(bot, update):
+    #pylint: disable=unused-argument
     """ Display virtual buttons as menu """
     keyboard = [[InlineKeyboardButton("Add", callback_data='1'),
                  InlineKeyboardButton("Delete", callback_data='2')],
@@ -29,17 +30,16 @@ def menu(bot, update):
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
-
 def log_menu_choice(query, choice):
-    """ Log entry to screen, todo: file """
+    """ Log menu item choice """
     log_entry(str(query.message.chat.username) + " executed menu item: " + choice)
 
 def log_command_choice(choice):
-    """ Log entry to screen, todo: file """
-    log_entry("Unknown executed menu item: " + choice)
+    """ Log command choice """
+    log_entry("Unknown executed command: " + choice)
 
 def log_entry(choice):
-    """ Log entry to screen, todo: file """
+    """ Log entry to screen with timestamp, todo: file """
     time_stamp = time.time()
     formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
     print("[" + formatted_time_stamp + "] " + choice)
@@ -56,7 +56,7 @@ def button(bot, update):
         respi = random_quote(bot, update, False)
     elif query.data == 'Temperature':
         choice = 'Temperature'
-        respi = temps(bot, update, False)
+        respi = "foo"
     else:
         choice = 'Invalid choice!'
 
@@ -67,15 +67,18 @@ def button(bot, update):
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
 
-def help(bot, update):
+def bot_help(bot, update):
+    #pylint: disable=unused-argument
     """ Help for bot """
     update.message.reply_text("Use /menu to see the options.")
 
-def error(bot, update, error):
+def bot_error(bot, update, error):
+    #pylint: disable=unused-argument
     """ Log Errors caused by Updates. """
     LOGGER.warning('Update "%s" caused error "%s"', update, error)
 
 def random_quote(bot, update, status=True):
+    #pylint: disable=unused-argument
     """ Return random quote """
     rnd_q = random.choice(QUOTES)
     # debug
@@ -100,7 +103,7 @@ def init_quotes(file):
 
     with open(file, 'r') as filu:
         num_lines = 0
-        for line in filu:
+        for _ in filu:
             num_lines += 1
     log_entry("Read " + str(num_lines) + " quotes into memory.")
 
@@ -122,9 +125,9 @@ def main():
 
     updater.dispatcher.add_handler(CommandHandler('menu', menu))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    updater.dispatcher.add_handler(CommandHandler('help', help))
+    updater.dispatcher.add_handler(CommandHandler('help', bot_help))
     updater.dispatcher.add_handler(CommandHandler('quote', random_quote))
-    updater.dispatcher.add_error_handler(error)
+    updater.dispatcher.add_error_handler(bot_error)
 
     # Start the Bot
     updater.start_polling()
