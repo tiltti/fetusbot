@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Python Telegram Module """
+""" Python Telegram Bot Module based on https://python-telegram-bot.org/ """
 # -*- coding: utf-8 -*-
 
 import logging
@@ -18,8 +18,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
+
 def menu(bot, update):
-    #pylint: disable=unused-argument
+    # pylint: disable=unused-argument
     """ Display virtual buttons as menu """
     keyboard = [[InlineKeyboardButton("Add", callback_data='1'),
                  InlineKeyboardButton("Delete", callback_data='2')],
@@ -30,19 +31,23 @@ def menu(bot, update):
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
+
 def log_menu_choice(query, choice):
     """ Log menu item choice """
     log_entry(str(query.message.chat.username) + " executed menu item: " + choice)
 
+
 def log_command_choice(choice):
     """ Log command choice """
     log_entry("Unknown executed command: " + choice)
+
 
 def log_entry(choice):
     """ Log entry to screen with timestamp, todo: file """
     time_stamp = time.time()
     formatted_time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
     print("[" + formatted_time_stamp + "] " + choice)
+
 
 def button(bot, update):
     """ Handler for 'button' presses """
@@ -67,15 +72,18 @@ def button(bot, update):
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
 
+
 def bot_help(bot, update):
     #pylint: disable=unused-argument
     """ Help for bot """
     update.message.reply_text("Use /menu to see the options.")
 
+
 def bot_error(bot, update, error):
     #pylint: disable=unused-argument
     """ Log Errors caused by Updates. """
     LOGGER.warning('Update "%s" caused error "%s"', update, error)
+
 
 def random_quote(bot, update, status=True):
     #pylint: disable=unused-argument
@@ -89,11 +97,13 @@ def random_quote(bot, update, status=True):
         return None
     return rnd_q
 
+
 def init_config():
     """ Initialize configruation (e.g. Telegram bot token) from config.json """
     with open('config.json') as json_cfg_file:
         config = json.load(json_cfg_file)
     return config
+
 
 def init_quotes(file):
     """ Load quotes from a file to memory """
@@ -108,6 +118,7 @@ def init_quotes(file):
     log_entry("Read " + str(num_lines) + " quotes into memory.")
 
     return quotes
+
 
 def main():
     """ Main Function """
